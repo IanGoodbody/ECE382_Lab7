@@ -28,7 +28,7 @@ void testMath()
 void testLEDsTimer()
 {
 	BCSCTL1 = CALBC1_8MHZ;
-	DCOCTL = CALDCO_8MHZ;;
+	DCOCTL = CALDCO_8MHZ;
 
 	P1DIR |= LEFT_LED|RIGHT_LED;
 	P1OUT |= LEFT_LED;
@@ -51,4 +51,82 @@ __interrupt void timerA0Overflow(void)
 {
 	P1OUT ^= (LEFT_LED|RIGHT_LED);
 	TA0CTL &= ~TAIFG;
+}
+
+void testRangeFinders()
+{
+	BCSCTL1 = CALBC1_8MHZ;
+	DCOCTL = CALDCO_8MHZ;
+
+	initRangeFinders();
+
+	P1DIR |= LEFT_LED|RIGHT_LED;
+
+
+	int fBuffer[BUFFER_LN];
+	int lBuffer[BUFFER_LN];
+	int rBuffer[BUFFER_LN];
+	int mf;
+	int ml;
+	int mr;
+
+	fillBuffers(fBuffer, lBuffer, rBuffer);
+
+	while(1)
+	{
+		readFront(fBuffer);
+		readLeft(lBuffer);
+		readRight(rBuffer);
+		mf = median(fBuffer);
+		ml = median(lBuffer);
+		mr = median(rBuffer);
+
+		if(mf > 0x01F0)
+		{
+			P1OUT |= (RIGHT_LED|LEFT_LED);
+		}
+		else if(ml > 0x0220)
+		{
+
+			P1OUT &= ~RIGHT_LED;
+			P1OUT |= LEFT_LED;
+		}
+		else if(mr > 0x0220)
+		{
+			P1OUT &= ~LEFT_LED;
+			P1OUT |= RIGHT_LED;
+		}
+		else
+		{
+			P1OUT &= ~(LEFT_LED|RIGHT_LED);
+		}
+	}
+
+}
+
+void testBuffers(void)
+{
+	initRangeFinders();
+
+	int fBuffer[BUFFER_LN];
+	int lBuffer[BUFFER_LN];
+	int rBuffer[BUFFER_LN];
+
+	volatile int fMean;
+	volatile int fMed;
+	volatile int rMean;
+	volatile int rMed;
+	volatile int lMean;
+	volatile int lMed;
+
+	while(1)
+	{
+		fillBuffers(fBuffer, lBuffer, rBuffer);
+		fMean = mean(fBuffer);
+		fMed = median(fBuffer);
+		lMean = mean(lBuffer);
+		lMed = median(lBuffer);
+		rMean = mean(rBuffer);
+		rMed = median(rBuffer);
+	}
 }

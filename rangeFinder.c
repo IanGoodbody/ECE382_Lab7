@@ -22,6 +22,7 @@ void readRight(int *bufferPtr)
 	ADC10AE0 |= BIT0;
 	ADC10CTL0 |= ENC|ADC10SC;
 	__bis_SR_register(CPUOFF + GIE);
+	ADC10CTL0 &= ~(ENC|ADC10SC);
 	rotateIn(bufferPtr, ADC10MEM);
 }
 
@@ -32,22 +33,56 @@ void readLeft(int *bufferPtr)
 	ADC10AE0 |= BIT1;
 	ADC10CTL0 |= ENC|ADC10SC;
 	__bis_SR_register(CPUOFF + GIE);
+	ADC10CTL0 &= ~(ENC|ADC10SC);
 	rotateIn(bufferPtr, ADC10MEM);
 }
 
-void readForward(int *bufferPtr)
+void readFront(int *bufferPtr)
 {
 	ADC10CTL1 &= ~INCH_15;
 	ADC10CTL1 |= INCH_2;
 	ADC10AE0 |= BIT2;
 	ADC10CTL0 |= ENC|ADC10SC;
 	__bis_SR_register(CPUOFF + GIE);
+	ADC10CTL0 &= ~(ENC|ADC10SC);
 	rotateIn(bufferPtr, ADC10MEM);
 }
 
 void fillBuffers(int *forwardBufferPtr, int *leftBufferPtr, int *rightBufferPtr)
 {
+	int i;
+	ADC10CTL1 &= ~INCH_15;
+	ADC10CTL1 |= INCH_0;
+	ADC10AE0 |= BIT0;
+	for (i = 9; i > 0; i--)
+	{
+		ADC10CTL0 |= ENC|ADC10SC;
+		__bis_SR_register(CPUOFF + GIE);
+		ADC10CTL0 &= ~(ENC|ADC10SC);
+		rotateIn(leftBufferPtr, ADC10MEM);
+	}
 
+	ADC10CTL1 &= ~INCH_15;
+	ADC10CTL1 |= INCH_1;
+	ADC10AE0 |= BIT1;
+	for (i = 9; i > 0; i--)
+	{
+		ADC10CTL0 |= ENC|ADC10SC;
+		__bis_SR_register(CPUOFF + GIE);
+		ADC10CTL0 &= ~(ENC|ADC10SC);
+		rotateIn(rightBufferPtr, ADC10MEM);
+	}
+
+	ADC10CTL1 &= ~INCH_15;
+	ADC10CTL1 |= INCH_2;
+	ADC10AE0 |= BIT2;
+	for (i = 9; i > 0; i--)
+	{
+		ADC10CTL0 |= ENC|ADC10SC;
+		__bis_SR_register(CPUOFF + GIE);
+		ADC10CTL0 &= ~(ENC|ADC10SC);
+		rotateIn(forwardBufferPtr, ADC10MEM);
+	}
 }
 
 #pragma vector=ADC10_VECTOR

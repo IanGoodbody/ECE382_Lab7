@@ -8,10 +8,8 @@
 void main(void)
 {
     WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
-    IFG1 = 0;
 
-    testLEDsTimer();
-    _enable_interrupt();
+    testRangeFinders();
 
     while(1);
 }

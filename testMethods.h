@@ -14,5 +14,7 @@
 void testMath();
 void testLEDsTimer();
 __interrupt void timerA0Overflow(void);
+void testRangeFinders();
+void testBuffers();
 
 #endif /* TESTMETHODS_H_ */

@@ -20,4 +20,7 @@ void rotateIn(int *bufferPtr, int val);
 int mean(int *bufferPtr);
 int median(int *bufferPtr);
 
+void initRangeFinders();
+void fillBuffers(int *forwardBufferPtr, int *leftBufferPtr, int *rightBufferPtr);
+
 #endif /* RANGEFINDER_H_ */
