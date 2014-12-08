@@ -2,12 +2,13 @@
  * rangeFinder.h
  *
  *  Created on: Dec 4, 2014
- *      Author: C16Ian.Goodbody
+ *      Author: Ian Goodbody
  */
 
 #ifndef RANGEFINDER_H_
 #define RANGEFINDER_H_
 
+// BUFFER_LN must be 8 for the mean function, must be a power of 2 for the median function
 #define BUFFER_LN 8
 #define FAR_THRESHOLD 34
 #define CLOSE_THRESHOLD 17

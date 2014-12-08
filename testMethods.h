@@ -2,7 +2,7 @@
  * testMethods.h
  *
  *  Created on: Dec 4, 2014
- *      Author: C16Ian.Goodbody
+ *      Author: Ian Goodbody
  */
 
 #ifndef TESTMETHODS_H_

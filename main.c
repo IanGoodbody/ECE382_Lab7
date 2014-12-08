@@ -9,7 +9,7 @@ void main(void)
 {
     WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
 
-    testRangeFinders();
+    testRangeFinders(); // This code will run the requied functionality.
 
     while(1);
 }

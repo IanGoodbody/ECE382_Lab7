@@ -2,12 +2,18 @@
  * rangeFinder.c
  *
  *  Created on: Dec 4, 2014
- *      Author: C16Ian.Goodbody
+ *      Author: Ian Goodbody
+ *    Function: Provides the basic IR rangefinder function library. Allows the user to interface with the rangefinders
+ *    			my specific robot (DFECE #3) with the wiring scematic and distance classifications provided.
  */
 
 #include "rangeFinder.h"
 #include <msp430.h>
 
+/*
+ * void initRangeFinders()
+ * 		Initializes the ADC control registers, call in program initialization
+ */
 void initRangeFinders()
 {
 	ADC10CTL0 |= ADC10SHT_3|ADC10ON|ADC10IE;
@@ -15,6 +21,11 @@ void initRangeFinders()
 
 }
 
+/*
+ * void readRight(int *bufferPtr)
+ * 		Read the ADC output connected to the right sensor then rotate it into the buffer array provided
+ * 		Note: buffer arrays must be declarfed with length BUFFER_LN set in the header file.
+ */
 void readRight(int *bufferPtr)
 {
 	ADC10CTL1 &= ~INCH_15;
@@ -26,6 +37,11 @@ void readRight(int *bufferPtr)
 	rotateIn(bufferPtr, ADC10MEM);
 }
 
+/*
+ * void readLeft(int *bufferPtr)
+ * 		Read the ADC output connected to the left sensor then rotate it into the buffer array provided
+ * 		Note: buffer arrays must be declarfed with length BUFFER_LN set in the header file.
+ */
 void readLeft(int *bufferPtr)
 {
 	ADC10CTL1 &= ~INCH_15;
@@ -37,6 +53,11 @@ void readLeft(int *bufferPtr)
 	rotateIn(bufferPtr, ADC10MEM);
 }
 
+/*
+ * void readFront(int *bufferPtr)
+ * 		Read the ADC output connected to the Front sensor then rotate it into the buffer array provided
+ * 		Note: buffer arrays must be declarfed with length BUFFER_LN set in the header file.
+ */
 void readFront(int *bufferPtr)
 {
 	ADC10CTL1 &= ~INCH_15;
@@ -48,13 +69,19 @@ void readFront(int *bufferPtr)
 	rotateIn(bufferPtr, ADC10MEM);
 }
 
+/*
+ * void fillBuffers(int *forwardBufferPtr, int *leftBufferPtr, int *rightBufferPtr)
+ * 		Provides an initial read or reset for the IR distance buffers. It is important to call
+ * 		prior to movement as the arbitrary values from memory may corrup the first set of moves
+ * 		from the robot.
+ */
 void fillBuffers(int *forwardBufferPtr, int *leftBufferPtr, int *rightBufferPtr)
 {
 	int i;
 	ADC10CTL1 &= ~INCH_15;
 	ADC10CTL1 |= INCH_0;
 	ADC10AE0 |= BIT0;
-	for (i = 9; i > 0; i--)
+	for (i = BUFFER_LN + 1; i > 0; i--) // Take 9 measurements just to be sure
 	{
 		ADC10CTL0 |= ENC|ADC10SC;
 		__bis_SR_register(CPUOFF + GIE);
@@ -65,7 +92,7 @@ void fillBuffers(int *forwardBufferPtr, int *leftBufferPtr, int *rightBufferPtr)
 	ADC10CTL1 &= ~INCH_15;
 	ADC10CTL1 |= INCH_1;
 	ADC10AE0 |= BIT1;
-	for (i = 9; i > 0; i--)
+	for (i = BUFFER_LN + 1; i > 0; i--)
 	{
 		ADC10CTL0 |= ENC|ADC10SC;
 		__bis_SR_register(CPUOFF + GIE);
@@ -76,7 +103,7 @@ void fillBuffers(int *forwardBufferPtr, int *leftBufferPtr, int *rightBufferPtr)
 	ADC10CTL1 &= ~INCH_15;
 	ADC10CTL1 |= INCH_2;
 	ADC10AE0 |= BIT2;
-	for (i = 9; i > 0; i--)
+	for (i = BUFFER_LN + 1; i > 0; i--)
 	{
 		ADC10CTL0 |= ENC|ADC10SC;
 		__bis_SR_register(CPUOFF + GIE);
@@ -85,6 +112,10 @@ void fillBuffers(int *forwardBufferPtr, int *leftBufferPtr, int *rightBufferPtr)
 	}
 }
 
+/*
+ * __interrupt void ADC10_ISR(void)
+ * 		ISR for low power operation durring the ADC process
+ */
 #pragma vector=ADC10_VECTOR
 __interrupt void ADC10_ISR(void)
 {
@@ -92,10 +123,10 @@ __interrupt void ADC10_ISR(void)
 }
 
 /*
- * rotateIn
- *
- * Moves all values down one index, dropes the value at index 0, then adds
- * val to the last index value
+ * void rotateIn(int *bufferPtr, int val)
+ *		Moves all values down one index, dropes the value at index 0, then adds
+ * 		val to the last index value. Used by the read in frunctions to cycle
+ * 		values through the buffer
  */
 void rotateIn(int *bufferPtr, int val)
 {
@@ -108,6 +139,11 @@ void rotateIn(int *bufferPtr, int val)
 	*bufferPtr = val;
 }
 
+/*
+ * int mean(int *bufferPtr)
+ * 		Computes the average of the specified buffer array. The mean function
+ * 		will only work for 8 item buffers unless the code is changed
+ */
 int mean(int *bufferPtr)
 {
 	int i;
@@ -116,9 +152,15 @@ int mean(int *bufferPtr)
 	{
 		sum += *(bufferPtr++);
 	}
-	return sum >> 3;
+	return sum >> 3; // Code built for a buffer size of 8, must be changed
 }
 
+/*
+ * int median(int *bufferPtr)
+ * 		Computes the median of the specified buffer array. This funciton works best if
+ * 		BUFFER_LN is a power of 2, but unlike the mean is not intrinsicly tied to a single
+ * 		value of BUFFER_LN
+ */
 int median(int *bufferPtr)
 {
 	int sortBuffer[BUFFER_LN];
@@ -146,5 +188,5 @@ int median(int *bufferPtr)
 			sortBufferPtr++;
 		}
 	}
-	return (sortBuffer[BUFFER_LN>>1]+sortBuffer[(BUFFER_LN>>1)-1])>>1;
+	return (sortBuffer[BUFFER_LN>>1]+sortBuffer[(BUFFER_LN>>1)-1])>>1; // Return the mean of the two middle values in the sort array.
 }
