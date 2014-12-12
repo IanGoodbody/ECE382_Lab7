@@ -10,7 +10,7 @@ Because this lab will ultimately end in a moving robot in Lab 8, the control cir
 driving circuit in addition to the connections to the IR rangefinders (the IR signal sensor was included for possible 
 later use). A full schematic for the design is shown below.
 
-![alt text](Schematic)
+![alt text](https://raw.githubusercontent.com/IanGoodbody/ECE382_Lab7/master/IR_Wiring.jpg)
 
 ### Software
 
