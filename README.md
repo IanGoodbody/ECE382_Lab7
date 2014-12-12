@@ -44,3 +44,26 @@ accoridngly. In order to increase the speed and fidelity of the data, the progra
 calls prior to data analysis. This will phase erronous values out faster by rotating in two new values each iteration.
 It will also make the program more sensitive to drastic changes in the signal while less sensitive to corrupted values
 (as fluke measurments are less likely to occure twice in a row).
+
+## Lab Implementation
+
+Because the full implementation of the lab would essentially require a fully functional code library and a baseline 
+set of distance and sensor signal pairings, all functionality aspects were introduced cocurrently. The sensor driver
+code was implemented with different read functions for each sensor, and the median function was used to pull out a 
+central data value for interpretation by the code. The LED combinations were set so the left sensor corresponded to 
+the red LED, the right sensor to the green LED, and the front sensor activated both. 
+
+Once a basic library was constructed and a simple proof of concept program achieved, the sensors were calibrated. 
+Initially the `fillBuffers()` method was used to sample 8 data values then return the median, however this produced
+inconsistent results. The next approach was then to allow the read, test, repeat loop from the basic proof of concept 
+program to fill the buffers, place a breakpoint at the top of the loop to stop the code's execution, then to read the
+data values. Assuming that I had the robot batteries on durring the testing, this method produced consistent results
+that are reported in the included spreadsheet.
+
+In order to ensure that the tests would be consistent with the robot's later use in the maze, distance readings were 
+calibrated using a wooden board that was roughly the same color as the maze wall. 
+
+
+### Documentation
+
+None
