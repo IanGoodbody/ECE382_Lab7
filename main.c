@@ -4,6 +4,7 @@
 
 /*
  * main.c
+ * This code will implement the functionality for the lab, turning LEDs on and off according to sensors
  */
 void main(void)
 {
